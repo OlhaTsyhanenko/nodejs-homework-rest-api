@@ -16,16 +16,6 @@ const getContactById = async (contactId) => {
 }
 
 const removeContact = async (contactId) => {
-//  const index = contacts.findIndex((contact) => contact.id === contactId)
-//   if (index !== -1) {
-//     const [result] = contacts.splice(index, 1)
-//     await fs.writeFile(
-//       path.join(__dirname, 'contacts.json'),
-//       JSON.stringify(contacts, null, 2),
-//     )
-//     return result
-//   }
-//   return null
   const newContacts = contacts.filter(contact => contact.id !== contactId);
   if (newContacts.length === contacts.length) {
     return null
