@@ -1,17 +1,50 @@
-// const fs = require('fs/promises')
-// const contacts = require('./contacts.json')
+import { ObjectId } from "mongodb"
+import db from "./db"
 
-const listContacts = async () => {}
+const getCollection = async (db, name) => {
+  const client = await db
+  const collection = await client.db().collection(name)
+  return collection
+}
 
-const getContactById = async (contactId) => {}
+const listContacts = async () => {
+  const collection = await getCollection(db,'contacts')
+  const result = await collection.find().toArray()
+  return result
+}
 
-const removeContact = async (contactId) => {}
+const getContactById = async (contactId) => {
+  const collection = await getCollection(db, 'contacts')
+  const id = ObjectId(contactId)
+  const [result] = await collection.find({ _id: id}).toArray()
+  return result
+}
 
-const addContact = async (body) => {}
+const removeContact = async (contactId) => {
+  const collection = await getCollection(db, 'contacts')
+  const id = ObjectId(contactId)
+  const {value: result} = await collection.findOneAndDelete({ _id: id})
+  return result
+}
 
-const updateContact = async (contactId, body) => {}
+const addContact = async (body) => {
+  const collection = await getCollection(db, 'contacts')
+  const newContact = {
+    ...body,
+    favorite: false,
+  }
+  const result = collection.insertOne(newContact)
+  return result
+}
 
-module.exports = {
+const updateContact = async (contactId, body) => {
+  const collection = await getCollection(db, 'contacts')
+  const id = ObjectId(contactId)
+  const {value: result} = await collection.findOneAndUpdate({ _id: id}, {$set: body})
+  return result
+}
+
+export default {
   listContacts,
   getContactById,
   removeContact,

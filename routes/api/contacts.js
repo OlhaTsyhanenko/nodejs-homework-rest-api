@@ -1,24 +1,47 @@
-const express = require('express')
+import express from 'express'
+import model from '../../model/index'
+import { validateAddContact, validateUpdate, validateId } from './validation'
+
 const router = express.Router()
 
+
 router.get('/', async (req, res, next) => {
-  res.json({ message: 'template message' })
+  const contacts = await model.listContacts()
+  console.log(contacts)
+  res.status(200).json(contacts)
 })
 
-router.get('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
+router.get('/:id', validateId, async (req, res, next) => {
+  const { id } = req.params
+  const contact = await model.getContactById(id)
+  if (contact) {
+    return res.status(200).json(contact)
+  }
+  res.status(404).json({ message: 'Not found' })
 })
 
-router.post('/', async (req, res, next) => {
-  res.json({ message: 'template message' })
+router.post('/', validateAddContact, async (req, res, next) => {
+  const newContact = await model.addContact(req.body)  
+  res.status(201).json(newContact)
 })
 
-router.delete('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
+router.delete('/:id', validateId, async (req, res, next) => {
+  const { id } = req.params
+  const contact = await model.removeContact(id)
+  if (contact) {
+    return res.status(200).json({ contact })
+  }
+  res.status(404).json({ message: 'Not found' })
+  }
+)
+
+router.patch('/:id', validateId, validateUpdate, async (req, res, next) => {
+  const { id } = req.params
+  const contact = await model.updateContact(id, req.body)
+  if (contact) {
+    return res.status(200).json(contact)
+  }
+  res.status(404).json({ message: 'Not found' }) 
 })
 
-router.patch('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
-
-module.exports = router
+export default router
