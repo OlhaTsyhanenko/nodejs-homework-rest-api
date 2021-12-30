@@ -19,7 +19,7 @@ const login = async (req, res, next) => {
     const user = await usersService.getUser(email, password)
     if (!user) {
         return res.status(HttpCode.UNAUTHORIZED)
-    .json({ status: 'unauthorized', code: HttpCode.UNAUTHORIZED, message: 'Email or password is wrong' })
+    .json({ status: 'unauthorized', code: HttpCode.UNAUTHORIZED, message: 'Not authorized' })
     }
     const token = usersService.getToken(user)
     await usersService.setToken(user.id, token)
@@ -31,7 +31,7 @@ const login = async (req, res, next) => {
 const logout = async (req, res, next) => {
     await usersService.setToken(req.user.id, null)
     res.status(HttpCode.NO_CONTENT)
-        .json({ status: 'No Content', code: HttpCode.NO_CONTENT, message: 'No Content' })
+       .json({ status: 'No Content', code: HttpCode.NO_CONTENT, message: 'No Content' })
 }
 
 export {registration, login, logout}
