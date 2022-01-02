@@ -12,8 +12,7 @@ const verifyToken = (token) => {
         return false
     }
 }
-
-const guard = async (req, res, next) => {
+const currentUser = async (req, res, next) => {
     const token = req.get('authorization')?.split(' ')[1]
     const isValidToken = verifyToken(token)
     if (!isValidToken) {
@@ -22,12 +21,11 @@ const guard = async (req, res, next) => {
     }
     const payload = jwt.decode(token)
     const user = await repositoryUsers.findById(payload.id)
-    if (!user || user.token !== token) {
-        return res.status(HttpCode.UNAUTHORIZED)
-            .json({ status: 'unauthorized', code: HttpCode.UNAUTHORIZED, message: 'Not authorized' })
-    }    
-    req.user = user
-    next()
+    if (isValidToken) {
+        const {email, subscription} = user
+        return res.status(HttpCode.OK)
+            .json({ status: 'OK', code: HttpCode.OK, user: { email, subscription } })
+    }   
 }
 
-export default guard
+export default currentUser

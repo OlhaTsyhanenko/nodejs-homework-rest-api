@@ -34,4 +34,4 @@ const logout = async (req, res, next) => {
        .json({ status: 'No Content', code: HttpCode.NO_CONTENT, message: 'No Content' })
 }
 
-export {registration, login, logout}
+export { registration, login, logout }

@@ -1,5 +1,4 @@
 import Joi from 'joi'
-import mongoose from 'mongoose'
 import { HttpCode } from '../../../lib/constants'
 
 // const { Types } = mongoose;

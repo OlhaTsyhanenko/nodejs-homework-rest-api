@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 import bcryptjs from 'bcryptjs'
 
-const { Schema, model, SchemaTypes } = mongoose;
+const { Schema, model } = mongoose;
 
 const userSchema = new Schema({
     name: {
@@ -29,11 +29,7 @@ const userSchema = new Schema({
     token: {
       type: String,
       default: null,
-    },
-    owner: {
-      type: SchemaTypes.ObjectId,
-      ref: 'user',
-    }
+    },    
     }, {
   versionKey: false,
   toJSON: {

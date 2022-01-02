@@ -35,6 +35,7 @@ class UsersService {
     async setToken(id, token) {
         await Users.updateToken(id, token)
     }
+
 }
 
 export default UsersService
