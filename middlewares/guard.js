@@ -25,7 +25,7 @@ const guard = async (req, res, next) => {
     if (!user || user.token !== token) {
         return res.status(HttpCode.UNAUTHORIZED)
             .json({ status: 'unauthorized', code: HttpCode.UNAUTHORIZED, message: 'Not authorized' })
-    }    
+    } 
     req.user = user
     next()
 }

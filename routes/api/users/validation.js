@@ -1,8 +1,6 @@
 import Joi from 'joi'
 import { HttpCode } from '../../../lib/constants'
 
-// const { Types } = mongoose;
-
 const createSchema = Joi.object({
   email: Joi.string().email().required(),
   password: Joi.string().required(),
