@@ -1,28 +1,31 @@
 import Contact from '../model/contact'
 
-const listContacts = async () => {
-  const contacts = await Contact.find()
+const listContacts = async (userId) => {
+  const contacts = await Contact.find({ owner: userId }).populate({
+    path: 'owner',
+    select: 'email',
+  })
   return contacts
 }
 
-const getContactById = async (contactId) => {
-  const contactById = await Contact.findById(contactId)
+const getContactById = async (userId, contactId) => {
+  const contactById = await Contact.findOne({_id: contactId, owner: userId})
   return contactById
 }
 
-const removeContact = async (contactId) => {
-  const removeContact = await Contact.findByIdAndRemove(contactId)
+const removeContact = async (userId, contactId) => {
+  const removeContact = await Contact.findOneAndRemove({_id: contactId, owner: userId})
   return removeContact
 }
 
-const addContact = async (body) => {
-  const addContact = await Contact.create(body)
+const addContact = async (userId, body) => {
+  const addContact = await Contact.create({...body, owner: userId})
   return addContact
 }
 
-const updateContact = async (contactId, body) => {
-  const updateContact = await Contact.findByIdAndUpdate(
-    contactId,
+const updateContact = async (userId, contactId, body) => {
+  const updateContact = await Contact.findOneAndUpdate(
+    {_id: contactId, owner: userId},
     { ...body },
     {new: true},
   )
