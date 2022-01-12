@@ -1,5 +1,6 @@
 import { HttpCode } from '../../lib/constants'
 import UsersService from '../../service/users'
+import { UploadAvatarService, LocalAvatarStorage } from '../../service/users/avatarStorage'
 const usersService = new UsersService()
 
 const registration = async (req, res, next) => {
@@ -40,5 +41,12 @@ const currentUser = async (req, res, next) => {
             .json({ status: 'OK', code: HttpCode.OK, user: { email, subscription } })
 }
 
+const uploadAvatar = async (req, res, next) => {
+    const uploadService = new UploadAvatarService(LocalAvatarStorage, req.file, req.user)
+    const avatarUrl = await uploadService.updateAvatar()
+    res.status(HttpCode.OK)
+        .json({ status: 'OK', code: HttpCode.OK, avatarUrl })
+}
 
-export { registration, login, logout, currentUser }
+
+export { registration, login, logout, currentUser, uploadAvatar }
