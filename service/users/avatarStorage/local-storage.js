@@ -19,7 +19,6 @@ class LocalStorage {
         await Users.updateAvatar(this.userId, avatarUrl)
         return avatarUrl
     }
-    
 }
 
 export default LocalStorage
