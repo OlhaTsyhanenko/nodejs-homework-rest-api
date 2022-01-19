@@ -10,9 +10,9 @@ class UsersService {
     }
 
     async create(body) {
-        const { email, subscription } = await Users.create(body)
+        const { email, subscription, avatarURL } = await Users.create(body)
         return {
-            email, subscription
+            email, subscription, avatarURL
         }
     }
 
