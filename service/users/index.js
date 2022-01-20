@@ -10,16 +10,16 @@ class UsersService {
     }
 
     async create(body) {
-        const { email, subscription, avatarURL } = await Users.create(body)
+        const { email, subscription, avatarURL, verificationToken } = await Users.create(body)
         return {
-            email, subscription, avatarURL
+            email, subscription, avatarURL, verificationToken
         }
     }
 
     async getUser(email, password) {
         const user = await Users.findByEmail(email)
         const isValidPassword = await user?.isValidPassword(password)
-        if (!isValidPassword) {
+        if (!isValidPassword || !user?.verify) {
             return null
         }
         return user
