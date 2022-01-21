@@ -1,6 +1,8 @@
 import { HttpCode } from '../../lib/constants'
 import UsersService from '../../service/users'
+import repositoryUsers from '../../repository/users'
 import { UploadAvatarService, LocalAvatarStorage } from '../../service/users/avatarStorage'
+import { EmailService, SenderSendgrid } from '../../service/email'
 const usersService = new UsersService()
 
 const registration = async (req, res, next) => {
@@ -11,8 +13,16 @@ const registration = async (req, res, next) => {
     .json({ status: 'conflict', code: HttpCode.CONFLICT, message: 'Email in use' })
     }
     const user = await usersService.create(req.body)
+    const emailService = new EmailService(process.env.NODE_ENV, new SenderSendgrid())
+    const isSend = await emailService.sendVerifyEmail(
+        email,
+        user.name,
+        user.verificationToken
+    )
+    delete user.verificationToken
+
     return res.status(HttpCode.CREATED)
-    .json({ status: 'create', code: HttpCode.CREATED, user }) 
+    .json({ status: 'create', code: HttpCode.CREATED, user: {...user, isSendEmailVerify: isSend} }) 
 }
 
 const login = async (req, res, next) => {
@@ -48,5 +58,37 @@ const uploadAvatar = async (req, res, next) => {
         .json({ status: 'OK', code: HttpCode.OK, avatarUrl })
 }
 
+const verifyUser = async (req, res, next) => {
+    const verifyToken = req.params.verificationToken
+    const userFromToken = await repositoryUsers.findByVerifyToken(verifyToken)
+    
+    if (userFromToken) {
+        await repositoryUsers.updateVerify(userFromToken.id, true)
+        return res.status(HttpCode.OK)
+        .json({ status: 'OK', code: HttpCode.OK, message: 'Verification successful' })
+    }
+    res.status(HttpCode.BAD_REQUEST)
+        .json({ status: 'Not Found', code: HttpCode.BAD_REQUEST, message: 'User not found' })
+}
 
-export { registration, login, logout, currentUser, uploadAvatar }
+const repeatEmailForVerifyUser = async (req, res, next) => {
+    const { email } = req.body
+    const user = await repositoryUsers.findByEmail(email)
+    const {verify} = user
+    if (!verify) {
+        const { email, name, verificationToken } = user
+        const emailService = new EmailService(process.env.NODE_ENV, new SenderSendgrid())
+        const isSend = await emailService.sendVerifyEmail(email, name, verificationToken)
+        if (isSend) {
+            return res.status(HttpCode.OK)
+                .json({ status: 'OK', code: HttpCode.OK, message: 'Verification email sent' })  
+        }
+         return res.status(HttpCode.UE)
+        .json({ status: 'error', code: HttpCode.UE, message: 'Unprocessable Entity' })  
+    }
+    res.status(HttpCode.BAD_REQUEST)
+        .json({ status: 'Bad Request', code: HttpCode.BAD_REQUEST, message: 'Verification has already been passed' })
+}
+
+
+export { registration, login, logout, currentUser, uploadAvatar, verifyUser, repeatEmailForVerifyUser }
